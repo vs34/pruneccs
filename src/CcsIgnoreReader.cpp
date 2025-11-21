@@ -4,7 +4,7 @@
 #include <cstdio>
 
 using namespace sta;
-
+// NOTE: Not using this currently it is parsing by itself
 CcsIgnoreReader::CcsIgnoreReader(const char *filename,
                                  bool infer_latches,
                                  sta::Network *network) :
