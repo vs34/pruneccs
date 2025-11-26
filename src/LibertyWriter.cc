@@ -40,6 +40,16 @@
 #include "StaState.hh"
 
 
+// TODO 
+// pg_pin
+// input_voltage
+// output_voltage
+// capasitance
+
+// DONE
+// power
+// oprating conditions
+
 
 namespace sta {
 
@@ -93,6 +103,7 @@ protected:
   void writeTableAxis10(const TableAxis *axis,
                         int index);
   void writeInternalPower (InternalPower *pwr, const LibertyPort *port);
+  void writeOperatingConditions();
 
 
   const char *asString(bool value);
@@ -237,7 +248,35 @@ LibertyWriter::writeHeader()
           library_->nominalTemperature());
   fprintf(stream_, "  nom_voltage                    : %.2f;\n",
           library_->nominalVoltage());
+
+  writeOperatingConditions();
 }
+
+void
+LibertyWriter::writeOperatingConditions() 
+{
+  if (library_->defaultOperatingConditions()) {
+    fprintf(stream_, "  default_operating_conditions : %s;\n", 
+      library_->defaultOperatingConditions()->name());
+  }
+  auto *op = library_->defaultOperatingConditions();
+  fprintf(stream_, "  operating_conditions(\"%s\") {\n", op->name());
+  fprintf(stream_, "    process : %g;\n", op->process());
+  fprintf(stream_, "    temperature : %g;\n", op->temperature());
+  fprintf(stream_, "    voltage : %g;\n", op->voltage());
+  fprintf(stream_, "  }\n");
+
+//  for (auto *op : library_->operatingConditions()) { // this is protected
+//      fprintf(stream_, "  operating_conditions(\"%s\") {\n", op->name());
+//      fprintf(stream_, "    process : %g;\n", op->process());
+//      fprintf(stream_, "    temperature : %g;\n", op->temperature());
+//      fprintf(stream_, "    voltage : %g;\n", op->voltage());
+//      fprintf(stream_, "    tree_type : %s;\n", op->treeType()->name()); // balanced/best_case etc
+//      fprintf(stream_, "  }\n");
+//  }
+
+}
+
 
 void
 LibertyWriter::writeTableTemplates()
