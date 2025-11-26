@@ -84,10 +84,10 @@ protected:
   void writeTimingArcSet(const TimingArcSet *arc_set);
   void writeTimingModels(const TimingArc *arc,
                          const RiseFall *rf);
-  void writeTableModel(const TableModel *model);
-  void writeTableModel0(const TableModel *model);
-  void writeTableModel1(const TableModel *model);
-  void writeTableModel2(const TableModel *model);
+  void writeTableModel(const TableModel *model, const Unit *unit);
+  void writeTableModel0(const TableModel *model, const Unit *unit);
+  void writeTableModel1(const TableModel *model, const Unit *unit);
+  void writeTableModel2(const TableModel *model, const Unit *unit);
   void writeTableAxis4(const TableAxis *axis,
                        int index);
   void writeTableAxis10(const TableAxis *axis,
@@ -107,6 +107,8 @@ protected:
   Report *report_;
   const Unit *time_unit_;
   const Unit *cap_unit_;
+  const Unit *leak_unit_;
+  Unit derived_pwr_unit_;
 };
 
 void
@@ -133,9 +135,20 @@ LibertyWriter::LibertyWriter(const LibertyLibrary *lib,
   stream_(stream),
   report_(report),
   time_unit_(lib->units()->timeUnit()),
-  cap_unit_(lib->units()->capacitanceUnit())
-{
-}
+  cap_unit_(lib->units()->capacitanceUnit()),
+  leak_unit_(lib->units()->powerUnit()),
+
+// CORRECTION:
+
+    derived_pwr_unit_(
+                // Scale = Volts * Amps * Seconds = Joules
+                  lib->units()->voltageUnit()->scale() * lib->units()->currentUnit()->scale() * lib->units()->timeUnit()->scale(),
+                //         
+                "J", // Suffix
+                7    // Precision
+            )
+
+{}
 
 void
 LibertyWriter::writeLibrary()
@@ -159,7 +172,9 @@ LibertyWriter::writeHeader()
   const Unit *cap_unit = library_->units()->capacitanceUnit();
   fprintf(stream_, "  capacitive_load_unit (1,%s);\n",
           cap_unit->scaledSuffix());
-  fprintf(stream_, "  leakage_power_unit             : 1pW;\n");
+  // fprintf(stream_, "  leakage_power_unit             : 1pW;\n");
+  fprintf(stream_, "  leakage_power_unit             : 1%s;\n", 
+          leak_unit_->scaledSuffix());
   const Unit *current_unit = library_->units()->currentUnit();
   fprintf(stream_, "  current_unit                   : \"1%s\";\n",
           current_unit->scaledSuffix());
@@ -367,7 +382,7 @@ LibertyWriter::writeCell(const LibertyCell *cell)
   if (mutable_cell->leakagePowers()) {
     for (auto *leak : *mutable_cell->leakagePowers()) {
       fprintf(stream_, "    leakage_power () {\n");
-      fprintf(stream_, "      value : %g;\n", leak->power());
+      fprintf(stream_, "      value : %s;\n", leak_unit_->asString(leak->power(), 5));
       if (leak->when()) {
         fprintf(stream_, "      when : \"%s\";\n", leak->when()->to_string().c_str());
       }
@@ -482,7 +497,7 @@ void LibertyWriter::writeInternalPower (InternalPower *pwr, const LibertyPort *p
           
           if (tbl) {
               fprintf(stream_, "        rise_power(%s) {\n", tbl->tblTemplate()->name());
-              writeTableModel(tbl); 
+              writeTableModel(tbl, &derived_pwr_unit_); 
               fprintf(stream_, "        }\n");
           }
       }
@@ -496,7 +511,7 @@ void LibertyWriter::writeInternalPower (InternalPower *pwr, const LibertyPort *p
           
           if (tbl) {
               fprintf(stream_, "        fall_power(%s) {\n", tbl->tblTemplate()->name());
-              writeTableModel(tbl); 
+              writeTableModel(tbl, &derived_pwr_unit_); 
               fprintf(stream_, "        }\n");
           }
       }
@@ -559,14 +574,14 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
     const TableModel *delay_model = gate_model->delayModel();
     const char *template_name = delay_model->tblTemplate()->name();
     fprintf(stream_, "	cell_%s(%s) {\n", rf->name(), template_name);
-    writeTableModel(delay_model);
+    writeTableModel(delay_model,time_unit_);
     fprintf(stream_, "	}\n");
 
     const TableModel *slew_model = gate_model->slewModel();
     if (slew_model) {
       template_name = slew_model->tblTemplate()->name();
       fprintf(stream_, "	%s_transition(%s) {\n", rf->name(), template_name);
-      writeTableModel(slew_model);
+      writeTableModel(slew_model, time_unit_);
       fprintf(stream_, "	}\n");
     }
   }
@@ -574,7 +589,7 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
     const TableModel *model = check_model->model();
     const char *template_name = model->tblTemplate()->name();
     fprintf(stream_, "	%s_constraint(%s) {\n", rf->name(), template_name);
-    writeTableModel(model);
+    writeTableModel(model, time_unit_);
     fprintf(stream_, "	}\n");
   }
   else
@@ -585,17 +600,17 @@ LibertyWriter::writeTimingModels(const TimingArc *arc,
 }
 
 void
-LibertyWriter::writeTableModel(const TableModel *model)
+LibertyWriter::writeTableModel(const TableModel *model, const Unit *unit)
 {
   switch (model->order()) {
   case 0:
-    writeTableModel0(model);
+    writeTableModel0(model, unit);
     break;
   case 1:
-    writeTableModel1(model);
+    writeTableModel1(model, unit);
     break;
   case 2:
-    writeTableModel2(model);
+    writeTableModel2(model, unit);
     break;
   case 3:
     report_->error(1342, "3 axis table models not supported.");  
@@ -604,15 +619,15 @@ LibertyWriter::writeTableModel(const TableModel *model)
 }
 
 void
-LibertyWriter::writeTableModel0(const TableModel *model)
+LibertyWriter::writeTableModel0(const TableModel *model, const Unit *unit)
 {
   float value = model->value(0, 0, 0);
   fprintf(stream_, "          values(\"%s\");\n",
-          time_unit_->asString(value, 5));
+          unit->asString(value, 5));
 }
 
 void
-LibertyWriter::writeTableModel1(const TableModel *model)
+LibertyWriter::writeTableModel1(const TableModel *model, const Unit *unit)
 {
   writeTableAxis10(model->axis1(), 1);
   fprintf(stream_, "          values(\"");
@@ -621,14 +636,14 @@ LibertyWriter::writeTableModel1(const TableModel *model)
     float value = model->value(index1, 0, 0);
     if (!first_col)
       fprintf(stream_, ",");
-    fprintf(stream_, "%s", time_unit_->asString(value, 5));
+    fprintf(stream_, "%s", unit->asString(value, 5));
     first_col = false;
   }
   fprintf(stream_, "\");\n");
 }
 
 void
-LibertyWriter::writeTableModel2(const TableModel *model)
+LibertyWriter::writeTableModel2(const TableModel *model, const Unit *unit)
 {
   writeTableAxis10(model->axis1(), 1);
   writeTableAxis10(model->axis2(), 2);
@@ -644,7 +659,7 @@ LibertyWriter::writeTableModel2(const TableModel *model)
       float value = model->value(index1, index2, 0);
       if (!first_col)
         fprintf(stream_, ",");
-      fprintf(stream_, "%s", time_unit_->asString(value, 5));
+      fprintf(stream_, "%s", unit->asString(value, 5));
       first_col = false;
     }
     fprintf(stream_, "\"");
