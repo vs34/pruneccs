@@ -3,6 +3,7 @@
 Visitor::Visitor() {
     size_index1 = -1;
     size_index2 = -1;
+    tab_formating = 0;
 }
 
 void Visitor::begin(LibertyGroup *group) {
@@ -11,6 +12,7 @@ void Visitor::begin(LibertyGroup *group) {
         return;
     std::cout  << group->type();
 
+    std::string tabs(tab_formating, ' ');
     // The "name" of a group is stored in params()
     if (group->params() && !group->params()->empty()) {
         std::cout << " (";
@@ -28,6 +30,7 @@ void Visitor::begin(LibertyGroup *group) {
     else
         std::cout << " () {";
     std::cout << std::endl;
+    tab_formating += 2;
 }
 
 void Visitor::parseGroup(LibertyGroup *group){
@@ -83,7 +86,9 @@ void Visitor::end(LibertyGroup *group) {
             parse_this_ = false;
         return;
     }
-    std::cout << '}' << std::endl;
+    tab_formating -= 2;
+    std::string tabs(tab_formating, ' ');
+    std::cout << tabs << '}' << std::endl;
 }
 
 
@@ -91,6 +96,7 @@ void Visitor::visitAttr(LibertyAttr *attr) {
     if (parse_this_)
         return;
 
+    std::string tabs(tab_formating, ' ');
     if (attr->isComplex()) {
         bool needs_quote = false;
         const char* name = attr->name();
@@ -98,7 +104,7 @@ void Visitor::visitAttr(LibertyAttr *attr) {
         if (strcmp(name, "values") == 0) { // writing tables
             if (size_index2 != -1 && size_index1 != -1){
 
-                std::cout << name << " ( "; 
+                std::cout << tabs << name << " ( "; 
                 int csv = size_index2;
                 bool first = true;
                 for (auto v: *attr->values()) {
@@ -130,7 +136,7 @@ void Visitor::visitAttr(LibertyAttr *attr) {
         else if (strcmp(name, "values") == 0)
             needs_quote = true;
         
-        std::cout << name << " ("; 
+        std::cout << tabs << name << " ("; 
 
         if (needs_quote)
             std::cout << '"';
@@ -164,7 +170,7 @@ void Visitor::visitAttr(LibertyAttr *attr) {
     } 
     
     else {
-        std::cout << attr->name() << " : ";
+        std::cout << tabs << attr->name() << " : ";
         
         auto v = attr->firstValue();
         if (v->isFloat()) {
