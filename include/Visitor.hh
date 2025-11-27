@@ -13,6 +13,7 @@ public:
     LibertyGroup *group_skip_;
     int size_index1;
     int size_index2;
+    int tab_formating;
 
     void parseGroup(LibertyGroup *group);
     
