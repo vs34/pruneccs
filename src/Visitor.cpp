@@ -10,9 +10,9 @@ void Visitor::begin(LibertyGroup *group) {
     parseGroup(group);
     if (parse_this_)
         return;
-    std::cout  << group->type();
-
     std::string tabs(tab_formating, ' ');
+    std::cout << tabs << group->type();
+
     // The "name" of a group is stored in params()
     if (group->params() && !group->params()->empty()) {
         std::cout << " (";
