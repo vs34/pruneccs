@@ -28,4 +28,4 @@ The executable `prune` will be created in the `build` directory.
 Run the tool by providing an input `.lib` file and an output destination.
 
 ```bash
-./build/prune <input_file.lib> > <output_file.lib>
+./build/prune [input_file.lib] > [output_file.lib]
