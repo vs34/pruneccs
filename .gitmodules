@@ -1,3 +1,4 @@
 [submodule "third_party/OpenSTA"]
-	path = third_party/OpenSTA
-	url = https://github.com/parallaxsw/OpenSTA.git
+    path = third_party/OpenSTA
+    url = https://github.com/Silimate/OpenSTA.git
+
