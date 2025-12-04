@@ -7,6 +7,6 @@ CMakeCache.txt
 CMakeFiles/
 cmake_install.cmake
 Makefile
-test/
+test/uncompress*
 
 .DS_Store
