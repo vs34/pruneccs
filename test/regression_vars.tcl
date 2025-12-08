@@ -144,6 +144,7 @@ record_example_tests {
 }
 
 record_public_tests {
+  delay_calc
   disconnect_mcp_pin
   get_filter
   get_is_buffer
@@ -160,10 +161,6 @@ record_public_tests {
   package_require
   path_group_names
   prima3
-  report_checks_sorted
-  report_checks_src_attr
-  report_json1
-  report_json2
   suppress_msg
   verilog_attribute
   verilog_specify
