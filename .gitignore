@@ -11,6 +11,7 @@ Makefile
 
 test/results
 test/prune*.lib
+test/temp*
 # ngspice turd
 test/b3v3_1check.log
 

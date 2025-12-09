@@ -135,6 +135,7 @@ proc record_example_tests { tests } {
 # Record tests in sta/examples
 
 record_public_tests {
+  big_test
   prune_ccs
   check_prune
   get_noargs
