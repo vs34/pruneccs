@@ -15,17 +15,17 @@ void Visitor::begin(LibertyGroup *group) {
 
     // The "name" of a group is stored in params()
     if (group->params() && !group->params()->empty()) {
-        std::cout << " (";
+        std::cout << " (" << '"';
         bool first = true;
         for (auto p : *group->params()) {
-            if (!first) std::cout << ", ";
+            if (!first) std::cout << '"' << ", " << '"';
             if (p->isFloat())
                 std::cout << p->floatValue();
             else
                 std::cout << p->stringValue();
             first = false;
         }
-        std::cout << ") {";
+        std::cout << '"' << ") {";
     }
     else
         std::cout << " () {";
@@ -140,10 +140,16 @@ void Visitor::visitAttr(LibertyAttr *attr) {
         else if (strcmp(name, "values") == 0)
             needs_quote = true;
         
-        std::cout << tabs << name << " ("; 
+        if (name && std::strlen(name) > 0 && name[std::strlen(name) - 1] == '\\'){
+            std::cout << tabs << name; 
+            std::cout << '\n' << tabs << "  (";
+        }else
+            std::cout << tabs << name << " ("; 
 
         if (needs_quote)
             std::cout << '"';
+
+
 
         bool first = true;
         int size = 0;
@@ -185,10 +191,9 @@ void Visitor::visitAttr(LibertyAttr *attr) {
             const char* name = attr->name();
             bool needs_quote = false;
 
-            if (strchr(val, ',') != nullptr) {
+            if (strcmp(name, "sdf_cond") == 0) 
                 needs_quote = true;
-            }
-            else if (strcmp(name, "sdf_cond") == 0) 
+            else if (strcmp(name, "revision") == 0) 
                 needs_quote = true;
             else if (strcmp(name, "date") == 0) 
                 needs_quote = true;
@@ -204,6 +209,8 @@ void Visitor::visitAttr(LibertyAttr *attr) {
                 needs_quote = true;
             else if (strcmp(name, "voltage_name") == 0) 
                 needs_quote = true;
+            else if (needsQuotes(val))
+                needs_quote = true;
 
             if (needs_quote) std::cout << '"' << val << '"';
             else std::cout << val;
@@ -211,6 +218,22 @@ void Visitor::visitAttr(LibertyAttr *attr) {
         
         std::cout << ";" << std::endl;
     }
+}
+
+bool Visitor::needsQuotes(const char* str) {
+    if (str == nullptr || str[0] == '\0') return true;
+
+    for (int i = 0; str[i] != '\0'; i++) {
+        char c = str[i];
+        if (isspace(c)) return true;
+
+        if (c == ',' || c == '*' || c == '+' || c == '(' || c == ')' || 
+            c == '!' || c == '&' || c == '|' || c == '^' || c == '/' || 
+            c == '=' || c == '<' || c == '>') {
+            return true;
+        }
+    }
+    return false;
 }
 
 void Visitor::visitVariable(LibertyVariable *variable) {

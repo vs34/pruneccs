@@ -24,6 +24,7 @@ public:
     void visitVariable(LibertyVariable *variable) override;
     
     // Save methods required by the interface
+    bool needsQuotes(const char* str);
     bool save(LibertyGroup*) override;
     bool save(LibertyAttr*) override;
     bool save(LibertyVariable*) override;
