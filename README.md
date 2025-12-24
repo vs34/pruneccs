@@ -40,7 +40,7 @@ cd test
 
 ### Test Workflow
 
-1.  **`prune_ccs`**: Runs `./build/prune` to generate a pruned library from a CCS input.
+1.  **`prune_ccs`**: Runs `./build/prune` to generate pruned library for all CCS/normal library.
 2.  **`check_prune`**: Validates that all CCS/SI groups have been removed from the output.
 3.  **OpenSTA Verification**: Runs standard analysis (`delay_calc`, `power`,etc) on the pruned library to ensure NLDM timing and power data remain intact and accurate.
 
