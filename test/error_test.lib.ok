@@ -1,0 +1,18 @@
+library ("asap7sc6t_AO_SRAM_FF_ccs_211010") {
+  input_voltage ("default_VDD_VSS_input") {
+    vil : 0;
+    vih : 0.77;
+    vimin : 0;
+    vimax : 0.77;
+  }
+  output_voltage ("default_VDD_VSS_output") {
+    vol : 0;
+    voh : 0.77;
+    vomin : 0;
+    vomax : 0.77;
+  }
+  normalized_driver_waveform ("waveform_template_name") {
+    driver_waveform_name : PreDriver20.5:rise;
+    index_1 ("5, 10, 20, 40, 80, 160, 320");
+    index_2 ("0, 0.03, 0.1, 0.158744, 0.221271, 0.279374, 0.333513, 0.3841, 0.437223, 0.533203, 0.58153, 0.626864, 0.717883, 0.806555, 0.9, 0.958983, 1");
+ERROR: error_test.lib line 18, syntax error
