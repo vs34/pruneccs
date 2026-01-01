@@ -12,9 +12,4 @@ Makefile
 test/results
 test/prune*.lib
 test/temp*
-# ngspice turd
-test/b3v3_1check.log
-
-# iverilog turd
-examples/gcd_tb
 

@@ -108,7 +108,7 @@ void Visitor::visitAttr(LibertyAttr *attr) {
         if (strcmp(name, "values") == 0) { // writing tables
             if (size_index2 != -1 && size_index1 != -1){
 
-                std::cout << tabs << name << " ( "; 
+                std::cout << tabs << name << " ( \\\n"; 
                 int csv = size_index2;
                 bool first = true;
                 for (auto v: *attr->values()) {
@@ -117,9 +117,9 @@ void Visitor::visitAttr(LibertyAttr *attr) {
                         csv = size_index2;
                     }
                     if (!first)
-                        std::cout << ", ";
+                        std::cout << ", \\\n";
                     if (csv == size_index2)
-                        std::cout << '"';
+                        std::cout << tabs << "  "<< '"';
                     if (v->isFloat()) {
                         std::cout << v->floatValue();
                     } else {
@@ -129,7 +129,7 @@ void Visitor::visitAttr(LibertyAttr *attr) {
                     csv --;
                 }
                 std::cout << '"';
-                std::cout << ");" << std::endl;
+                std::cout << " \\\n" << tabs<< ");" << std::endl;
                 return;
             }
         }
