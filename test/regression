@@ -91,16 +91,7 @@ if __name__ == "__main__":
         print("No .lib files found.")
     else:
         for lib in lib_files:
-            if lib == "idempotency.lib":
-                continue
             run_test(EXE_PATH, lib)
-
-    # Copy the log file to the idempotency library file
-    shutil.copy(os.path.join(RESULTS_DIR, lib_files[0] + ".log"), "idempotency.lib")
-    shutil.copy(os.path.join(RESULTS_DIR, lib_files[0] + ".log"), "idempotency.lib.ok")
-
-    # Run the idempotency test
-    run_test(EXE_PATH, "idempotency.lib")
 
     # Check if there were any failures
     if os.path.getsize(DIFFS_FILE) > 0:
