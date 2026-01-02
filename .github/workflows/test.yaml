@@ -55,7 +55,7 @@ jobs:
           export TCL_LIBRARY="$(brew --prefix tcl-tk@8)/lib/libtcl8.6.dylib"
           export TCL_INCLUDE_PATH="$(brew --prefix tcl-tk@8)/include/tcl-tk"
           export FLEX_INCLUDE_DIR="$(brew --prefix flex)/include"
-          cmake -S . -B build -DCMAKE_CXX_COMPILER=g++
+          cmake -S . -B build -DCMAKE_CXX_COMPILER=g++ \
                               -D TCL_LIBRARY=$TCL_LIBRARY \
                               -D TCL_INCLUDE_PATH=$TCL_INCLUDE_PATH \
                               -D FLEX_INCLUDE_DIR=$FLEX_INCLUDE_DIR
