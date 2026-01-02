@@ -4,6 +4,9 @@ project(PRUNECCS VERSION 2.7.0
   LANGUAGES CXX
 )
 
+set_target_properties(PRUNECCS PROPERTIES CXX_EXTENSIONS OFF)
+target_compile_features(PRUNECCS PUBLIC cxx_std_17)
+
 add_subdirectory(third_party/OpenSTA)
 
 add_executable(pruneccs
