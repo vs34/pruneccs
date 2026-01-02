@@ -33,9 +33,7 @@ jobs:
           curl -L https://raw.githubusercontent.com/davidkebo/cudd/main/cudd_versions/cudd-3.0.0.tar.gz | tar -xzvC .
           cd cudd-3.0.0 && ./configure && make -j$(nproc) && sudo make install
       - run: |
-          cmake -S . -B build -D TCL_LIBRARY=$TCL_LIBRARY \
-                              -D TCL_INCLUDE_PATH=$TCL_INCLUDE_PATH \
-                              -D FLEX_INCLUDE_DIR=$FLEX_INCLUDE_DIR
+          cmake -S . -B build
           cd build && make -j$(nproc)
       - run: |
           cd test && (./regression || (cat results/diffs && exit 1))
