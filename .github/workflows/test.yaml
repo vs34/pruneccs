@@ -3,18 +3,14 @@ on: [push, pull_request]
 
 jobs:
   linux-docker:
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [centos7, ubuntu22.04]
     runs-on: [ubuntu-24.04]
-    timeout-minutes: 10
+    timeout-minutes: 5
     steps:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
       - run: |
-          sudo apt-get update
+          sudo apt-get update -y
           sudo apt-get install -y \
               wget \
               cmake \
