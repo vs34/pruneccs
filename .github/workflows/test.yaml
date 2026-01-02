@@ -30,19 +30,14 @@ jobs:
               autotools-dev
       - run: |
           curl -L https://raw.githubusercontent.com/davidkebo/cudd/main/cudd_versions/cudd-3.0.0.tar.gz | tar -xzvC .
-          cd cudd-3.0.0
-          ./configure
-          make -j$(nproc)
-          sudo make install
+          cd cudd-3.0.0 && ./configure && make -j$(nproc) && sudo make install
       - run: |
           cmake -S . -B build -D TCL_LIBRARY=$TCL_LIBRARY \
                               -D TCL_INCLUDE_PATH=$TCL_INCLUDE_PATH \
                               -D FLEX_INCLUDE_DIR=$FLEX_INCLUDE_DIR
-          cd build
-          make -j$(nproc)
+          cd build && make -j$(nproc)
       - run: |
-          cd test
-          ./regression || (cat results/diffs && exit 1)
+          cd test && (./regression || (cat results/diffs && exit 1))
 
   macos:
     runs-on: [macos-14]
@@ -52,8 +47,7 @@ jobs:
         with:
           persist-credentials: false
       - run: |
-          cd third_party/opensta
-          brew bundle install
+          cd third_party/opensta && brew bundle install
       - run: |
           eval "$(/opt/homebrew/bin/brew shellenv)"
           export PATH="$(brew --prefix flex)/bin:$PATH"
@@ -64,8 +58,6 @@ jobs:
           cmake -S . -B build -D TCL_LIBRARY=$TCL_LIBRARY \
                               -D TCL_INCLUDE_PATH=$TCL_INCLUDE_PATH \
                               -D FLEX_INCLUDE_DIR=$FLEX_INCLUDE_DIR
-          cd build
-          make -j`sysctl -n hw.ncpu`
+          cd build && make -j$(sysctl -n hw.ncpu)
       - run: |
-          cd test
-          ./regression || (cat results/diffs && exit 1)
+          cd test && (./regression || (cat results/diffs && exit 1))
